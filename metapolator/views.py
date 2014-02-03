@@ -53,6 +53,20 @@ render = web.template.render('templates', base='base', globals=t_globals)
 ###  classes
 
 
+class Origin(app.page):
+
+    path = '/override-origins/'
+
+    @raise404_notauthorized
+    def GET(self):
+        models.GlyphOriginParam.all().delete()
+
+        for p in models.GlyphParam.all():
+            p.copy()
+
+        return seeother('/')
+
+
 class GlyphPageMixin(object):
 
     def get_glyphs_jsondata(self, glyphid, master, revoke_presets=False):

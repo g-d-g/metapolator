@@ -331,7 +331,7 @@ class GlyphParam(Base, UserQueryMixin):
     serif_v_left = Column(String(32))
     serif_v_right = Column(String(32))
 
-    def copy(self, newglyphoutline_obj):
+    def copy(self, newglyphoutline_obj=None):
         kwargs = dict(
             pointname=self.pointname,
             type=self.type,
@@ -366,17 +366,24 @@ class GlyphParam(Base, UserQueryMixin):
             serif_v_left=self.serif_v_left,
             serif_v_right=self.serif_v_right)
 
-        param = GlyphParam.create(
-            glyph_id=newglyphoutline_obj.glyph_id,
-            glyphoutline_id=newglyphoutline_obj.id,
-            master_id=newglyphoutline_obj.master_id,
-            **kwargs)
+        if newglyphoutline_obj:
+            param = GlyphParam.create(
+                glyph_id=newglyphoutline_obj.glyph_id,
+                glyphoutline_id=newglyphoutline_obj.id,
+                master_id=newglyphoutline_obj.master_id,
+                **kwargs)
 
-        param = GlyphOriginParam.create(
-            glyph_id=newglyphoutline_obj.glyph_id,
-            glyphoutline_id=newglyphoutline_obj.id,
-            master_id=newglyphoutline_obj.master_id,
-            **kwargs)
+            param = GlyphOriginParam.create(
+                glyph_id=newglyphoutline_obj.glyph_id,
+                glyphoutline_id=newglyphoutline_obj.id,
+                master_id=newglyphoutline_obj.master_id,
+                **kwargs)
+        else:
+            param = GlyphOriginParam.create(
+                glyph_id=self.glyph_id,
+                glyphoutline_id=self.glyphoutline_id,
+                master_id=self.master_id,
+                **kwargs)
 
         return param
 
