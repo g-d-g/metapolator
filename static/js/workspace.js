@@ -80,6 +80,14 @@ Workspace.prototype = {
             glyph.renderZPoints(data.R[0].zpoints.points);
             this.metapolationView.glyph.render(data.M[0].contours);
         }.bind(this));
+        if (view.glyph.showMaster) {
+            $.get('/a/glyph/origins/', $.param(data))
+                            .done(function(response) {
+                                var response = $.parseJSON(response);
+                                view.glyph.masterContures = response;
+                                view.glyph.renderSource(response);
+            }.bind(this));
+        }
     },
 
     /*
