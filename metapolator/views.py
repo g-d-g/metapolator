@@ -280,6 +280,7 @@ class GlyphOrigin(app.page, GlyphPageMixin):
 
     @raise404_notauthorized
     def GET(self):
+        print self
         x = web.input(master_id=0, glyphname='')
         if not x.get('glyphname'):
             raise web.notfound()
@@ -297,7 +298,6 @@ class GlyphOrigin(app.page, GlyphPageMixin):
             result = result['R'][0]['contours']
         except (KeyError, IndexError):
             result = []
-
         return simplejson.dumps(result)
 
 

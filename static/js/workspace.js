@@ -79,6 +79,16 @@ Workspace.prototype = {
 
             glyph.renderZPoints(data.R[0].zpoints.points);
             this.metapolationView.glyph.render(data.M[0].contours);
+            console.log(data);
+            if (glyph.showMaster) {
+                var data = {glyphname: glyph.view.glyphname, master_id: glyph.view.master_id};
+                $.get('/a/glyph/origins/', $.param(data))
+                                .done(function(response) {
+                                    var response = $.parseJSON(response);
+                                    glyph.renderSource(response);
+                }.bind(this));
+            }
+
         }.bind(this));
     },
 
@@ -280,18 +290,15 @@ Workspace.prototype = {
 
     toggleSource: function(view){
         var data = {glyphname: view.glyphname, master_id: view.master_id}
-        if (view.glyph.masterContures && view.glyph.showMaster) {
-            view.glyph.renderSource(view.glyph.masterContures);
-        }
-        else if (!view.glyph.masterContures && view.glyph.showMaster) {
+        if (view.glyph.showMaster) {
             $.get('/a/glyph/origins/', $.param(data))
                         .done(function(response) {
                             var response = $.parseJSON(response);
+                            console.log(response);
                             view.glyph.masterContures = response;
                             view.glyph.renderSource(response);
                         }.bind(this));
-        }
-        else if (!view.glyph.showMaster) {
+        } else {
             view.glyph.graph.deleteSource();
         }
     },
