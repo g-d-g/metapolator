@@ -53,19 +53,35 @@ render = web.template.render('templates', base='base', globals=t_globals)
 ###  classes
 
 
+class Origin(app.page):
+
+    path = '/override-origins/'
+
+    @raise404_notauthorized
+    def GET(self):
+        models.GlyphOriginParam.all().delete()
+
+        for p in models.GlyphParam.all():
+            p.copy()
+
+        return seeother('/')
+
+
 class GlyphPageMixin(object):
 
-    def get_glyphs_jsondata(self, glyphid, master):
+    def get_glyphs_jsondata(self, glyphid, master, revoke_presets=False):
         project = master.project
         masters = project.get_ordered_masters()
 
         glyph = models.Glyph.get(master_id=master.id, name=glyphid)
 
-        metapost = Metapost(project)
-        metapost.execute_interpolated_single(glyph)
+        metapost = Metapost(project, revoke_presets=revoke_presets)
 
-        instancelog = project.get_instancelog(masters[0].version)
-        M_glyphjson = get_edges_json(instancelog, glyphid)
+        M_glyphjson = {}
+        if not revoke_presets:
+            metapost.execute_interpolated_single(glyph)
+            instancelog = project.get_instancelog(masters[0].version)
+            M_glyphjson = get_edges_json(instancelog, glyphid)
 
         metapost.execute_single(master, glyph)
         instancelog = project.get_instancelog(master.version, 'a')
@@ -258,12 +274,13 @@ class EditorLocals(app.page, GlyphPageMixin):
         return simplejson.dumps(result)
 
 
-class GlyphOrigin(app.page):
+class GlyphOrigin(app.page, GlyphPageMixin):
 
     path = '/a/glyph/origins/'
 
     @raise404_notauthorized
     def GET(self):
+        print self
         x = web.input(master_id=0, glyphname='')
         if not x.get('glyphname'):
             raise web.notfound()
@@ -273,7 +290,15 @@ class GlyphOrigin(app.page):
 
         if not glyph:
             raise web.notfound()
-        return glyph.original_glyph_contours
+
+        result = self.get_glyphs_jsondata(x.glyphname, glyph.master,
+                                          revoke_presets=True)
+
+        try:
+            result = result['R'][0]['contours']
+        except (KeyError, IndexError):
+            result = []
+        return simplejson.dumps(result)
 
 
 class userstatic(app.page):
@@ -566,6 +591,36 @@ class EditorCreateMaster(app.page):
                                  overcap=pointparam.overcap,
                                  overasc=pointparam.overasc,
                                  overdesc=pointparam.overdesc)
+        models.GlyphOriginParam.create(glyphoutline_id=glyphoutline.id,
+                                       glyph_id=glyph.id,
+                                       master_id=glyph.master_id,
+                                       pointname=pointparam.pointname,
+                                       startp=pointparam.startp,
+                                       type=pointparam.type,
+                                       control_in=pointparam.control_in,
+                                       control_out=pointparam.control_out,
+                                       doubledash=pointparam.doubledash,
+                                       tripledash=pointparam.tripledash,
+                                       leftp=pointparam.leftp,
+                                       rightp=pointparam.rightp,
+                                       downp=pointparam.downp,
+                                       upp=pointparam.upp,
+                                       dir=pointparam.dir,
+                                       leftp2=pointparam.leftp2,
+                                       rightp2=pointparam.rightp2,
+                                       downp2=pointparam.downp2,
+                                       upp2=pointparam.upp2,
+                                       dir2=pointparam.dir2,
+                                       tensionand=pointparam.tensionand,
+                                       penshifted=pointparam.penshifted,
+                                       pointshifted=pointparam.pointshifted,
+                                       angle=pointparam.angle,
+                                       penwidth=pointparam.penwidth,
+                                       overx=pointparam.overx,
+                                       overbase=pointparam.overbase,
+                                       overcap=pointparam.overcap,
+                                       overasc=pointparam.overasc,
+                                       overdesc=pointparam.overdesc)
 
     def round(self, coord):
         return int(round(float(coord)))

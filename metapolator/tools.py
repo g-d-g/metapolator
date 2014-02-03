@@ -7,7 +7,8 @@ from lxml import etree
 
 from config import buildfname
 
-from models import Glyph, GlyphParam, GlyphOutline, LocalParam
+from models import Glyph, GlyphParam, GlyphOutline, \
+    LocalParam, GlyphOriginParam
 
 
 zpoint_re = re.compile('(?P<name>z(?P<number>[\d]+))(?P<side>[lr])')
@@ -59,10 +60,20 @@ class PointSet(object):
                                                master_id=glyph.master_id,
                                                glyph_id=glyph.id,
                                                pointname=self.name(point))
+
+            originparam = GlyphOriginParam.get(glyphoutline_id=glyphoutline.id,
+                                               glyph_id=glyph.id)
+
+            if not originparam:
+                originparam = GlyphOriginParam.create(glyphoutline_id=glyphoutline.id,
+                                                      master_id=glyph.master_id,
+                                                      glyph_id=glyph.id,
+                                                      pointname=self.name(point))
             for attr in point['preset']:
                 if attr == 'name':
                     continue
                 setattr(glyphparam, attr, point['preset'][attr])
+                setattr(originparam, attr, point['preset'][attr])
 
         web.ctx.orm.commit()
 

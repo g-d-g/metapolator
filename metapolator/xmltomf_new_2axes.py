@@ -10,7 +10,7 @@ class DifferentZPointError(Exception):
     pass
 
 
-def xmltomf1(master, glyphA, glyphB=None, glyphC=None, glyphD=None, stdout_fip=None, interpolated=False):
+def xmltomf1(master, glyphA, glyphB=None, glyphC=None, glyphD=None, stdout_fip=None, interpolated=False, origin_presets=False):
     """ Save current points to mf file
 
         master is an instance of models.Master
@@ -60,24 +60,28 @@ def xmltomf1(master, glyphA, glyphB=None, glyphC=None, glyphD=None, stdout_fip=N
     fip.write("""% point coordinates font A""")
     fip.write("\n")
 
-    query = web.ctx.orm.query(models.GlyphOutline, models.GlyphParam)
+    param_Model = models.GlyphParam
+    if origin_presets:
+        param_Model = models.GlyphOriginParam
+
+    query = web.ctx.orm.query(models.GlyphOutline, param_Model)
     query = query.filter(models.GlyphOutline.glyph_id == glyphA.id)
-    query = query.filter(models.GlyphParam.glyphoutline_id == models.GlyphOutline.id)
+    query = query.filter(param_Model.glyphoutline_id == models.GlyphOutline.id)
     fonta_outlines = list(query)
 
-    query = web.ctx.orm.query(models.GlyphOutline, models.GlyphParam)
+    query = web.ctx.orm.query(models.GlyphOutline, param_Model)
     query = query.filter(models.GlyphOutline.glyph_id == glyphB.id)
-    query = query.filter(models.GlyphParam.glyphoutline_id == models.GlyphOutline.id)
+    query = query.filter(param_Model.glyphoutline_id == models.GlyphOutline.id)
     fontb_outlines = list(query)
 
-    query = web.ctx.orm.query(models.GlyphOutline, models.GlyphParam)
+    query = web.ctx.orm.query(models.GlyphOutline, param_Model)
     query = query.filter(models.GlyphOutline.glyph_id == glyphC.id)
-    query = query.filter(models.GlyphParam.glyphoutline_id == models.GlyphOutline.id)
+    query = query.filter(param_Model.glyphoutline_id == models.GlyphOutline.id)
     fontc_outlines = list(query)
 
-    query = web.ctx.orm.query(models.GlyphOutline, models.GlyphParam)
+    query = web.ctx.orm.query(models.GlyphOutline, param_Model)
     query = query.filter(models.GlyphOutline.glyph_id == glyphD.id)
-    query = query.filter(models.GlyphParam.glyphoutline_id == models.GlyphOutline.id)
+    query = query.filter(param_Model.glyphoutline_id == models.GlyphOutline.id)
     fontd_outlines = list(query)
 
     for item, param in fonta_outlines:

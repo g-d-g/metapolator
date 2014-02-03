@@ -331,13 +331,8 @@ class GlyphParam(Base, UserQueryMixin):
     serif_v_left = Column(String(32))
     serif_v_right = Column(String(32))
 
-    def copy(self, newglyphoutline_obj):
-
-        return GlyphParam.create(
-            glyph_id=newglyphoutline_obj.glyph_id,
-            glyphoutline_id=newglyphoutline_obj.id,
-            master_id=newglyphoutline_obj.master_id,
-
+    def copy(self, newglyphoutline_obj=None):
+        kwargs = dict(
             pointname=self.pointname,
             type=self.type,
             control_in=self.control_in,
@@ -370,6 +365,79 @@ class GlyphParam(Base, UserQueryMixin):
             serif_h_top=self.serif_h_top,
             serif_v_left=self.serif_v_left,
             serif_v_right=self.serif_v_right)
+
+        if newglyphoutline_obj:
+            param = GlyphParam.create(
+                glyph_id=newglyphoutline_obj.glyph_id,
+                glyphoutline_id=newglyphoutline_obj.id,
+                master_id=newglyphoutline_obj.master_id,
+                **kwargs)
+
+            param = GlyphOriginParam.create(
+                glyph_id=newglyphoutline_obj.glyph_id,
+                glyphoutline_id=newglyphoutline_obj.id,
+                master_id=newglyphoutline_obj.master_id,
+                **kwargs)
+        else:
+            param = GlyphOriginParam.create(
+                glyph_id=self.glyph_id,
+                glyphoutline_id=self.glyphoutline_id,
+                master_id=self.master_id,
+                **kwargs)
+
+        return param
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+class GlyphOriginParam(Base, UserQueryMixin):
+
+    __tablename__ = 'glyph_origin_params'
+
+    # glyphoutline = relationship('GlyphOutline', backref='glyphoutline')
+
+    id = Column(Integer, primary_key=True)
+    glyph_id = Column(Integer, ForeignKey('glyph.id'))
+    glyphoutline_id = Column(Integer, ForeignKey('glyphoutline.id'))
+
+    fontsource = Column(Enum('A', 'B'), index=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    master_id = Column(Integer, ForeignKey('master.id'))
+
+    pointname = Column(String(32))
+    type = Column(String(32))
+    control_in = Column(String(32))
+    control_out = Column(String(32))
+    startp = Column(Integer)
+    doubledash = Column(String(32))
+    tripledash = Column(String(32))
+    leftp = Column(String(32))
+    rightp = Column(String(32))
+    downp = Column(String(32))
+    upp = Column(String(32))
+    dir = Column(String(32))
+    leftp2 = Column(String(32))
+    rightp2 = Column(String(32))
+    downp2 = Column(String(32))
+    upp2 = Column(String(32))
+    dir2 = Column(String(32))
+    tensionand = Column(String(32))
+    penshifted = Column(String(32))
+    pointshifted = Column(String(32))
+    angle = Column(String(32))
+    penwidth = Column(String(32))
+    overx = Column(String(32))
+    overbase = Column(String(32))
+    overcap = Column(String(32))
+    overasc = Column(String(32))
+    overdesc = Column(String(32))
+
+    theta = Column(String(32))
+    serif_h_bot = Column(String(32))
+    serif_h_top = Column(String(32))
+    serif_v_left = Column(String(32))
+    serif_v_right = Column(String(32))
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
