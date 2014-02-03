@@ -276,7 +276,13 @@ class GlyphOrigin(app.page, GlyphPageMixin):
 
         result = self.get_glyphs_jsondata(x.glyphname, glyph.master,
                                           revoke_presets=True)
-        return simplejson.dumps(result['R'][0])
+
+        try:
+            result = result['R'][0]['contours']
+        except (KeyError, IndexError):
+            result = []
+
+        return simplejson.dumps(result)
 
 
 class userstatic(app.page):
