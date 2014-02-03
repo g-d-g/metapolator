@@ -62,10 +62,12 @@ class GlyphPageMixin(object):
         glyph = models.Glyph.get(master_id=master.id, name=glyphid)
 
         metapost = Metapost(project, revoke_presets=revoke_presets)
-        metapost.execute_interpolated_single(glyph)
 
-        instancelog = project.get_instancelog(masters[0].version)
-        M_glyphjson = get_edges_json(instancelog, glyphid)
+        M_glyphjson = {}
+        if not revoke_presets:
+            metapost.execute_interpolated_single(glyph)
+            instancelog = project.get_instancelog(masters[0].version)
+            M_glyphjson = get_edges_json(instancelog, glyphid)
 
         metapost.execute_single(master, glyph)
         instancelog = project.get_instancelog(master.version, 'a')
