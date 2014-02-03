@@ -9,10 +9,11 @@ from metapolator.models import Glyph, LocalParam, Metapolation
 class Metapost:
     """ Make operations after calling metapost utility with existed glyphs """
 
-    def __init__(self, project, version=None):
+    def __init__(self, project, version=None, revoke_presets=False):
         self.mfparser = project.mfparser
         self.project = project
         self.version = str(version or 'font')
+        self.revoke_presets = revoke_presets
 
     def write_glyph_list(self, master, glyphname=None, interpolated=False):
         fontdirectory = master.get_fonts_directory()
@@ -152,12 +153,14 @@ class Metapost:
         masters = self.project.get_ordered_masters()
         for i, m in enumerate(masters):
             if not i:
-                writeParams(self.project, m.metafont_filepath(), masters)
+                writeParams(self.project, m.metafont_filepath(),
+                            masters, revoke_presets=self.revoke_presets)
 
             if m.id != master.id:
                 continue
             writeParams(self.project, m.metafont_filepath('a'), masters,
-                        label=i, master=master)
+                        label=i, master=master,
+                        revoke_presets=self.revoke_presets)
 
 
 GLOBAL_DEFAULTS = {
@@ -208,7 +211,7 @@ def get_local_param(param, key):
     return getattr(param, key, 0)
 
 
-def writeParams(project, filename, masters, label=None, master=None):
+def writeParams(project, filename, masters, label=None, master=None, revoke_presets=False):
     # TODO: make global parameter to project related and not master
     globalparam = None
 
@@ -264,10 +267,15 @@ def writeParams(project, filename, masters, label=None, master=None):
 
     for i, master_obj in enumerate(lmast):
         imlo = None
-        if master_obj and not master:
+
+        # If revoke_presets argument is True then ignore all local settings
+        if revoke_presets:
+            pass
+        elif master_obj and not master:
             imlo = LocalParam.get(id=master_obj.idlocala)
         elif master:
             imlo = LocalParam.get(id=master.idlocala)
+
         uniqletter = chr(ord('A') + i)
         ifile.write("%s_px#:=%.2fpt#;\n" % (uniqletter, get_local_param(imlo, 'px')))
         ifile.write("%s_width:=%.2f;\n" % (uniqletter, get_local_param(imlo, 'width')))

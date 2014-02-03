@@ -55,13 +55,13 @@ render = web.template.render('templates', base='base', globals=t_globals)
 
 class GlyphPageMixin(object):
 
-    def get_glyphs_jsondata(self, glyphid, master):
+    def get_glyphs_jsondata(self, glyphid, master, revoke_presets=False):
         project = master.project
         masters = project.get_ordered_masters()
 
         glyph = models.Glyph.get(master_id=master.id, name=glyphid)
 
-        metapost = Metapost(project)
+        metapost = Metapost(project, revoke_presets=revoke_presets)
         metapost.execute_interpolated_single(glyph)
 
         instancelog = project.get_instancelog(masters[0].version)
@@ -258,7 +258,7 @@ class EditorLocals(app.page, GlyphPageMixin):
         return simplejson.dumps(result)
 
 
-class GlyphOrigin(app.page):
+class GlyphOrigin(app.page, GlyphPageMixin):
 
     path = '/a/glyph/origins/'
 
@@ -273,7 +273,10 @@ class GlyphOrigin(app.page):
 
         if not glyph:
             raise web.notfound()
-        return glyph.original_glyph_contours
+
+        result = self.get_glyphs_jsondata(x.glyphname, glyph.master,
+                                          revoke_presets=True)
+        return simplejson.dumps(result['R'][0])
 
 
 class userstatic(app.page):
