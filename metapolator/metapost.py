@@ -84,11 +84,13 @@ class Metapost:
         for glyph in master.get_glyphs():
             if self.mfparser == 'pen':
                 import xmltomf
-                xmltomf.xmltomf1(master, glyph)
+                xmltomf.xmltomf1(master, glyph,
+                                 origin_presets=self.revoke_presets)
 
             if self.mfparser == 'controlpoints':
                 import xmltomf_new_2axes as xmltomf
-                xmltomf.xmltomf1(master, glyph)
+                xmltomf.xmltomf1(master, glyph,
+                                 origin_presets=self.revoke_presets)
 
         self.write_glyph_list(master)
         return self._execute(master)
@@ -117,11 +119,13 @@ class Metapost:
 
         if self.mfparser == 'pen':
             import xmltomf
-            xmltomf.xmltomf1(master, glyph)
+            xmltomf.xmltomf1(master, glyph,
+                             origin_presets=self.revoke_presets)
 
         if self.mfparser == 'controlpoints':
             import xmltomf_new_2axes as xmltomf
-            xmltomf.xmltomf1(master, glyph)
+            xmltomf.xmltomf1(master, glyph,
+                             origin_presets=self.revoke_presets)
 
         self.write_glyph_list(master, glyph.name)
         return self._execute(master)
@@ -143,11 +147,13 @@ class Metapost:
         if self.mfparser == 'controlpoints':
             import xmltomf_new_2axes as xmltomf
             xmltomf.xmltomf1(primary_master, *list(glyphs),
-                             interpolated=interpolated)
+                             interpolated=interpolated,
+                             origin_presets=self.revoke_presets)
         else:
             import xmltomf
             xmltomf.xmltomf1(primary_master, *list(glyphs),
-                             interpolated=interpolated)
+                             interpolated=interpolated,
+                             origin_presets=self.revoke_presets)
 
     def write_global_params(self, master):
         masters = self.project.get_ordered_masters()
