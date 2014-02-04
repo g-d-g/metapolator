@@ -74,6 +74,16 @@ var PaperJSGraph = function(size, paperscope) {
                                   Math.abs(parseInt(offsety)));
         this.ppscope.view.scrollBy(point);
     }
+
+    this.vectorValues = {
+        fixLength: false,
+        fixAngle: false,
+        showCircle: false,
+        showAngleLength: true,
+        showCoordinates: false
+    };
+    this.vectorStart, this.vector, this.vectorPrevious;
+    this.vectorItem, this.items, this.dashedItems;
 }
 
 
@@ -111,8 +121,87 @@ PaperJSGraph.prototype = {
             this.ppscope.view.scrollBy(new this.ppscope.Point(vectorX, vectorY));
             return;
         }
+        if (event.event.altKey){
+                var x = event.point.x;
+                var y = event.point.y;
+                var point = new this.ppscope.Point(x, y);
+                console.log( point - point );
+                console.log(point);
+                this.processVector(event, event.modifiers.altKey);
+            }
         this.selectedzpoint.moveTo(event.point);
         this.isdragged = true;
+    },
+
+    processVector: function(event, drag) {
+            this.vector = substractPoint(this.ppscope, event.point, this.vectorStart);
+            // this.vector = event.point - this.vectorStart;
+            if (this.vectorPrevious) {
+                if (this.vectorValues.fixLength && this.vectorValues.fixAngle) {
+                    this.vectorValues = this.vectorPrevious;
+                } else if (this.vectorValues.fixLength) {
+                    this.vectorValues.length = this.vectorPrevious.length;
+                } else if (this.vectorValues.fixAngle) {
+                    this.vectorValues = this.vectorValues.project(vectorPrevious);
+                }
+            }
+            this.drawVector(drag);
+    },
+
+    drawVector: function(drag) {
+        if (this.items) {
+            for (var i = 0, l = this.items.length; i < l; i++) {
+                this.items[i].remove();
+            }
+        }
+        if (this.vectorItem)
+            this.vectorItem.remove();
+        this.items = [];
+        var arrowVector = this.vector.normalize(10);
+        var end = this.vectorStart + this.vector;
+        this.vectorItem = new Group([
+            new Path([vectorStart, end]),
+            new Path([
+                end + arrowVector.rotate(135),
+                end,
+                end + arrowVector.rotate(-135)
+            ])
+        ]);
+        this.vectorItem.strokeWidth = 0.75;
+        this.vectorItem.strokeColor = '#e4141b';
+        // Display:
+        this.dashedItems = [];
+        // Draw Circle
+        if (this.vectorValues.showCircle) {
+            this.dashedItems.push(new Path.Circle({
+                center: this.vectorStart,
+                radius: this.vector.length
+            }));
+        }
+        // Draw Labels
+        if (this.vectorValues.showAngleLength) {
+            drawAngle(this.vectorStart, this.vector, !drag);
+            if (!drag)
+                drawLength(this.vectorStart, end, vector.angle < 0 ? -1 : 1, true);
+        }
+        var quadrant = this.vector.quadrant;
+        if (this.vectorValues.showCoordinates && !drag) {
+            drawLength(this.vectorStart, this.vectorStart + [vector.x, 0],
+                    [1, 3].indexOf(quadrant) != -1 ? -1 : 1, true, vector.x, 'x: ');
+            drawLength(this.vectorStart, vectorStart + [0, vector.y],
+                    [1, 3].indexOf(quadrant) != -1 ? 1 : -1, true, vector.y, 'y: ');
+        }
+        for (var i = 0, l = this.dashedItems.length; i < l; i++) {
+            var item = dashedItems[i];
+            this.item.strokeColor = 'black';
+            this.item.dashArray = [1, 2];
+            this.items.push(this.item);
+        }
+        // Update palette
+        this.vectorValues.x = this.vector.x;
+        this.vectorValues.y = this.vector.y;
+        this.vectorValues.length = this.vector.length;
+        this.vectorValues.angle = this.vector.angle;
     },
 
     firedMouseUp: function(event) {
@@ -617,6 +706,7 @@ Glyph.prototype = {
 
     pointSelect: function(point) {
         this.graph.setPointByName(point);
+        console.log('selected');
     },
 
     pointFormSubmit: function(point, isdragged) {
@@ -641,4 +731,8 @@ Glyph.prototype = {
         this.view.setPointFormValues(point);
     }
 
-}
+};
+
+function substractPoint(ppscope, point1, point2) {
+    return new Point(ppscope, {x : point1.x - point2.x , y : point2.y - point2.y  })
+};
