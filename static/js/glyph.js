@@ -108,15 +108,8 @@ PaperJSGraph.prototype = {
         }
     },
 
-    firedMouseDrag: function(event) {
-        if (!this.selectedzpoint) {
-            var vectorX = event.delta.x > 0 ? -2 : (event.delta.x == 0 ? 0 : 2);
-            var vectorY = event.delta.y > 0 ? -2 : (event.delta.y == 0 ? 0 : 2);
-            this.ppscope.view.scrollBy(new this.ppscope.Point(vectorX, vectorY));
-            return;
-        }
-        if (event.event.altKey && this.selectedzpoint) {
-            var vector = substractPoint(event.point, this.selectedzpoint.zpoint);
+    drawAngle: function (event) {
+        var vector = substractPoint(event.point, this.selectedzpoint.zpoint);
             if (this.dirVector){
                 this.dirVector.remove();
             }
@@ -154,6 +147,17 @@ PaperJSGraph.prototype = {
                     this.items.push(item);
                 }
             this.ppscope.view.draw();
+    },
+
+    firedMouseDrag: function(event) {
+        if (!this.selectedzpoint) {
+            var vectorX = event.delta.x > 0 ? -2 : (event.delta.x == 0 ? 0 : 2);
+            var vectorY = event.delta.y > 0 ? -2 : (event.delta.y == 0 ? 0 : 2);
+            this.ppscope.view.scrollBy(new this.ppscope.Point(vectorX, vectorY));
+            return;
+        }
+        if (event.event.altKey && this.selectedzpoint) {
+            this.drawAngle(event);
         } else {
             this.selectedzpoint.moveTo(event.point);
             }
