@@ -135,21 +135,14 @@ PaperJSGraph.prototype = {
             var to = from.rotate(vector.angle);
             var end = addPoint(this.selectedzpoint.zpoint, to);
             this.dashedItems.push(
-                new paper.Path.Line(this.selectedzpoint.zpoint,
-                substractPoint(this.selectedzpoint.zpoint, new paper.Point(radius - threshold, 0))
-            ));
-
-            this.dashedItems.push(
-                new paper.Path.Arc(addPoint(from, this.selectedzpoint.zpoint),
-                                   addPoint(through, this.selectedzpoint.zpoint) , end)
-            );
+                new paper.Path.Line(substractPoint(this.selectedzpoint.zpoint, new paper.Point(25, 0)),
+                this.selectedzpoint.zpoint));
             if (this.label) {
-                // Angle Label
                 var temp = addPoint(this.selectedzpoint.zpoint, through.normalize(threshold + 10));
                 var text = new paper.PointText(addPoint(temp, new paper.Point(0, 3)));
-                var angle = Math.floor(vector.angle * 100) / 100
+                var angle = Math.floor((180 - vector.angle) * 100) / 100
                 text.content = angle + '°';
-                this.selectedzpoint.config.dir = angle;
+                this.selectedzpoint.config.dir = (180 - vector.angle);
                 text.fillColor = 'black';
                 this.items.push(text);
             }
