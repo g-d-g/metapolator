@@ -49,8 +49,12 @@ t_globals = {
     'webctx': web.ctx,
     'websession': session
 }
+
 render = web.template.render('templates', base='base', globals=t_globals)
+
+render_template = web.template.render('templates')
 ###  classes
+
 
 
 class Origin(app.page):
@@ -65,6 +69,14 @@ class Origin(app.page):
             p.copy()
 
         return seeother('/')
+
+class OpentypeJSInterpolationPage(app.page):
+
+    path = '/test/'
+
+    def GET(self):
+        return render_template.opentype_js()
+
 
 
 class GlyphPageMixin(object):
