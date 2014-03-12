@@ -1,12 +1,14 @@
-markdown: rdiscount
-pygments: true
-permalink: /posts/:title
 auto: true
+pygments: true
+markdown: rdiscount
 rdiscount:
   extensions: [smart]
-title : Metapolator
+permalink: /posts/:title
+url: http://metapolator.com
 production_url : http://metapolator.com
-description: "Web based parametric font editor"
+title: Metapolator
+subtitle: Design font families
+description: Metapolator is a web-based parametric font editor for designing families
 # disqus_shortname: metapolator_blog
 # analytics: UA-12312312-3
 # gauges: 50f2b533613f5d7c8000000d
