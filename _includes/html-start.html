@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="metapolatortestApp">
+<head>
+  <meta charset="UTF-8">
+  {% if page.title == site.title %}
+  <title>{{ site.title }}</title>
+  {% else %}
+  <title>{{ site.title }}: {{ page.title }}</title>
+  {% endif %}
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="app/css/demo.css"/>
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="bower_components/angular/angular-csp.css"/>
+  <link href='http://fonts.googleapis.com/css?family=Roboto:100italic,500,300,700,400' rel='stylesheet' type='text/css'>
+  <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
+  <script type="text/javascript" src="app/js/app.js"></script>
+
+  <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+<body>
